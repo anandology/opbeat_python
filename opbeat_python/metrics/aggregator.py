@@ -1,11 +1,14 @@
 """
-opbeat_python.contrib.async
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
+opbeat_python.metrics.aggregator
+~~~~~~~~~~~~~~~~~~~~~~~
 
 :copyright: (c) 2011-2012 Opbeat
+
 :license: BSD, see LICENSE for more details.
 """
 
+
+from timeit import default_timer
 from collections import defaultdict
 
 
@@ -42,35 +45,43 @@ class StatSet(object):
 class Aggregator(object):
     """
         Aggregates multiple datapoints into a single
-        point per metric/segments values
+        point per minute per metric/segments values
     """
     def __init__(self):
-        self.clear_values()
+        self._clear_values()
 
     def record_point(self, metric, value, segments={}):
         """
             Record a single point.
         """
+        # time normalized to minute resolution
+        current_time = int(default_timer()) / 60 * 60
 
-        segments = frozenset(segments)  # this way it can be hashed
-        key = (metric, segments)
+        segments = frozenset(segments.items())  # this way it can be hashed
+        key = (current_time, metric, segments)
+
         self.points[key].update(value)
 
-    def get_values(self):
+    def get_and_clear_values(self):
         """
-            Extract values from aggregator.
+            Extract and clear values from aggregator.
         """
-        return [
+        values = [
             {
-                'segments':segments,
-                'avg_value':statset.avg_value,
-                'min_value':statset.min_value,
-                'max_value':statset.max_value,
-                'sample_count':statset.sample_count
+                'metric': metric,
+                'segments': dict(segments),
+                'avg_value': statset.avg_value,
+                'min_value': statset.min_value,
+                'max_value': statset.max_value,
+                'sample_count': statset.sample_count,
+                'timestamp': timestamp
             }
-            for (metric, segments), statset in self.points.items()
+            for (timestamp, metric, segments), statset in self.points.items()
         ]
+        self._clear_values()
 
-    def clear_values(self):
+        return values
+
+    def _clear_values(self):
         self.points = defaultdict(StatSet)
 

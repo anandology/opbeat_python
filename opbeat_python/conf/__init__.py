@@ -10,61 +10,61 @@ Large portions are
 """
 
 import logging
-import urlparse
+# import urlparse
 
 
-__all__ = ('load', 'setup_logging')
+__all__ = ('setup_logging',)
 
 
-# TODO (vng): this seems weirdly located in opbeat_python.conf.  Seems like
-# it's really a part of opbeat_python.transport.TransportRegistry
-# Not quite sure what to do with this
-def load(dsn, scope=None, transport_registry=None):
-    """
-    Parses a Sentry compatible DSN and loads it
-    into the given scope.
+# # TODO (vng): this seems weirdly located in opbeat_python.conf.  Seems like
+# # it's really a part of opbeat_python.transport.TransportRegistry
+# # Not quite sure what to do with this
+# def load(dsn, scope=None, transport_registry=None):
+#     """
+#     Parses a Sentry compatible DSN and loads it
+#     into the given scope.
 
-    >>> import opbeat_python
+#     >>> import opbeat_python
 
-    >>> dsn = 'https://public_key:secret_key@sentry.local/project_id'
+#     >>> dsn = 'https://public_key:secret_key@sentry.local/project_id'
 
-    >>> # Apply configuration to local scope
-    >>> opbeat_python.load(dsn, locals())
+#     >>> # Apply configuration to local scope
+#     >>> opbeat_python.load(dsn, locals())
 
-    >>> # Return DSN configuration
-    >>> options = opbeat_python.load(dsn)
-    """
+#     >>> # Return DSN configuration
+#     >>> options = opbeat_python.load(dsn)
+#     """
 
-    if not transport_registry:
-        from opbeat_python.transport import TransportRegistry
-        transport_registry = TransportRegistry()
+#     if not transport_registry:
+#         from opbeat_python.transport import TransportRegistry
+#         transport_registry = TransportRegistry()
 
-    url = urlparse.urlparse(dsn)
+#     url = urlparse.urlparse(dsn)
 
-    if not transport_registry.supported_scheme(url.scheme):
-        raise ValueError('Unsupported Sentry DSN scheme: %r' % url.scheme)
+#     if not transport_registry.supported_scheme(url.scheme):
+#         raise ValueError('Unsupported Sentry DSN scheme: %r' % url.scheme)
 
-    if scope is None:
-        scope = {}
-    scope_extras = transport_registry.compute_scope(url, scope)
-    scope.update(scope_extras)
+#     if scope is None:
+#         scope = {}
+#     scope_extras = transport_registry.compute_scope(url, scope)
+#     scope.update(scope_extras)
 
-    return scope
+#     return scope
 
 
 def setup_logging(handler, exclude=['opbeat_python',
                                     'gunicorn',
                                     'south',
-                                    'sentry.errors']):
+                                    'opbeat.errors']):
     """
-    Configures logging to pipe to Sentry.
+    Configures logging to pipe to Opbeat.
 
     - ``exclude`` is a list of loggers that shouldn't go to Sentry.
 
     For a typical Python install:
 
     >>> from opbeat_python.handlers.logging import OpbeatHandler
-    >>> client = Sentry(...)
+    >>> client = Opbeat(...)
     >>> setup_logging(OpbeatHandler(client))
 
     Within Django:

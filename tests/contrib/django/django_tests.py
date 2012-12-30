@@ -53,8 +53,8 @@ class TempStoreClient(DjangoClient):
         self.events = []
         super(TempStoreClient, self).__init__(*args, **kwargs)
 
-    def send(self, **kwargs):
-        self.events.append(kwargs)
+    def send(self, data, **kwargs):
+        self.events.append(data)
 
 
 class Settings(object):

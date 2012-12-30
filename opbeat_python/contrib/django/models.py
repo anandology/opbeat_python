@@ -19,8 +19,15 @@ import warnings
 
 from django.conf import settings as django_settings
 
+from opbeat_python.metrics import begin_measure, end_measure
 
-logger = logging.getLogger('sentry.errors.client')
+logger = logging.getLogger('opbeat_python.errors.client')
+
+processing_time_metric_name = getattr(
+                                django_settings,
+                                'OPBEAT_PROCESSING_TIME_METRIC_NAME',
+                                'opbeat_python.processing_times'
+                            )
 
 
 def get_installed_apps():
@@ -150,7 +157,7 @@ def get_transaction_wrapper(client):
     return transaction
 
 
-def sentry_exception_handler(request=None, **kwargs):
+def opbeat_exception_handler(request=None, **kwargs):
     transaction = get_transaction_wrapper(client)
 
     @transaction.commit_on_success
@@ -177,11 +184,24 @@ def sentry_exception_handler(request=None, **kwargs):
 
     return actually_do_stuff(request, **kwargs)
 
+
+def opbeat_request_finished(sender):
+    end_measure(processing_time_metric_name)
+
+
+def opbeat_request_began(sender):
+    begin_measure(processing_time_metric_name)
+
+
 def register_handlers():
     from django.core.signals import got_request_exception
+    from django.core.signals import request_started, request_finished
 
     # Connect to Django's internal signal handler
-    got_request_exception.connect(sentry_exception_handler)
+    got_request_exception.connect(opbeat_exception_handler)
+
+    request_started.connect(opbeat_request_began)
+    request_finished.connect(opbeat_request_finished)
 
     # If Celery is installed, register a signal handler
     if 'djcelery' in django_settings.INSTALLED_APPS:
