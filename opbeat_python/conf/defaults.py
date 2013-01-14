@@ -69,4 +69,4 @@ PROCESSORS = (
 )
 
 # Metrics flush time limit in seconds
-METRIC_FLUSH_TIME_LIMIT = 300
+METRIC_FLUSH_TIME_LIMIT = 5

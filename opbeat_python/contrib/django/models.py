@@ -203,3 +203,6 @@ if 'opbeat_python.contrib.django' in django_settings.INSTALLED_APPS:
     #     except Exception, ex:
     #         import traceback
     #         traceback.print_exc()
+
+from opbeat_python import metrics
+metrics.set_client(get_client())

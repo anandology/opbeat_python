@@ -56,12 +56,69 @@ def end_measure(metric, segments={}):
         record_value(metric, elapsed_time, segments)
 
 
-@contextmanager
-def measure(metric, segments={}):
-    begin_measure(metric, segments)
-    yield
-    end_measure(metric, segments)
+#class Measure():
+#    def __init__(self, metric, segments = {}):
+#        self.metric = metric
+#        self.segments = segments
+#
+#    def begin(self):
+#        self.begin_time = default_timer()
+#
+#    def end(self):
+#        if hasattr(self, 'begin_time'):
+#            elapsed_time = default_timer() - self.begin_time
+#            del self.begin_time
+#            record_value(self.metric, elapsed_time, self.segments)
 
+
+#@contextmanager
+#def measure(metric, segments={}):
+#    measure = Measure(metric, segments)
+#    measure.begin()
+#    yield
+#    measure.end()
+
+class Measure():
+    """
+    This class can be used either as a decorator or as a context manager.
+
+    As a context manager:
+
+    >>> with metrics.measure('elapsed_time'):
+    >>>     print 'starting'
+    >>>     time.sleep(5)
+    >>>     print 'the end'
+
+    As a decorator:
+
+    >>> @metrics.measure('elapsed_time'):
+    >>> def function(arg1, arg2):
+    >>>     print 'arg1: %s' % arg1
+    >>>     time.sleep(5)
+    >>>     print 'arg2: %s' % arg2
+
+    """
+
+    def __init__(self, metric, segments={}):
+        self.metric = metric
+        self.segments = segments
+
+    def __enter__(self):
+        self.begin_time = default_timer()
+
+    def __exit__(self, type, value, traceback):
+        elapsed_time = default_timer() - self.begin_time
+        record_value(self.metric, elapsed_time, self.segments)
+
+    def __call__(self, fn):
+        def wrapper(*args, **kwargs):
+            with self:
+                ret = fn(*args, **kwargs)
+            return ret
+
+        return wrapper
+
+measure = Measure
 
 def record_value(metric, value, segments={}):
     global __last_flush
@@ -107,4 +164,4 @@ def flush_metrics():
             )
         new_values.append(value)
 
-    __client.send(new_values)
+    __client.send_metrics(new_values)

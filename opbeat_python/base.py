@@ -374,11 +374,17 @@ class Client(object):
 
 		project_id = data.pop('project_id', None)
 		access_token = data.pop('access_token', None)
-		auth_header = data.pop('auth_header', None)
 
-		self.send(data, project_id=project_id, access_token=access_token, auth_header=auth_header, servers=servers)
+		self.send(data, project_id=project_id, access_token=access_token, servers=servers)
 
 		return data['client_supplied_id']
+
+	def send_metrics(self, data):
+		project_id = self.project_id
+		api_path = defaults.DATAPOINT_API_PATH.format(project_id)
+		servers = [server + api_path for server in self.servers]
+		
+		self.send(data, servers=servers, project_id=project_id)
 
 	def _send_remote(self, url, data, headers={}):
 		parsed = urlparse(url)
@@ -419,21 +425,21 @@ class Client(object):
 		else:
 			self.state.set_success()
 
-	def send(self, message, project_id=None, access_token=None, auth_header=None, servers = None):
+	def send(self, message, project_id=None, access_token=None, servers=None):
 		"""
 		Serializes the message and passes the payload onto ``send_encoded``.
 		"""
 		encoded_message = self.encode(message)
 
 		try:
-			return self.send_encoded(encoded_message, project_id=project_id, access_token=access_token, auth_header=auth_header, servers=servers)
+			return self.send_encoded(encoded_message, project_id=project_id, access_token=access_token, servers=servers)
 		except TypeError:
 			# Make the assumption that public_key wasnt supported
 			warnings.warn('%s.send_encoded needs updated to support ``**kwargs``' % (type(self).__name__,),
 				DeprecationWarning)
 			return self.send_encoded(message)
 
-	def send_encoded(self, message, project_id, access_token, auth_header=None, servers = None, **kwargs):
+	def send_encoded(self, message, project_id, access_token, servers = None, **kwargs):
 		"""
 		Given an already serialized message, signs the message and passes the
 		payload off to ``send_remote`` for each server specified in the servers
@@ -445,14 +451,13 @@ class Client(object):
 			warnings.warn('opbeat_python client has no remote servers configured')
 			return
 
-		if not auth_header:
-			if not project_id:
-				project_id = self.project_id
+		if not project_id:
+			project_id = self.project_id
 
-			if not access_token:
-				access_token = self.access_token
-				
-			auth_header = "Bearer %s" % (access_token)
+		if not access_token:
+			access_token = self.access_token
+
+		auth_header = "Bearer %s" % (access_token)
 
 		for url in servers:
 			headers = {
