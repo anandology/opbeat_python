@@ -26,8 +26,8 @@ SERVERS = ['https://opbeat.com']
 # Error API path
 ERROR_API_PATH = '/api/v0/project/{0}/error/'
 
-# Deployment Tracking API path
-DEPLOYMENT_API_PATH = '/api/v0/deployment/'
+# Datapoint API path
+DATAPOINT_API_PATH = '/api/v0/project/{0}/datapoint/'
 
 TIMEOUT = 5
 
@@ -65,5 +65,8 @@ AUTO_LOG_STACKS = False
 
 # Client-side data processors to apply
 PROCESSORS = (
-    'opbeat_python.processors.SanitizePasswordsProcessor',
+	'opbeat_python.processors.SanitizePasswordsProcessor',
 )
+
+# Metrics flush time limit in seconds
+METRIC_FLUSH_TIME_LIMIT = 300

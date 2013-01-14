@@ -150,7 +150,7 @@ def get_transaction_wrapper(client):
     return transaction
 
 
-def sentry_exception_handler(request=None, **kwargs):
+def opbeat_exception_handler(request=None, **kwargs):
     transaction = get_transaction_wrapper(client)
 
     @transaction.commit_on_success
@@ -181,7 +181,7 @@ def register_handlers():
     from django.core.signals import got_request_exception
 
     # Connect to Django's internal signal handler
-    got_request_exception.connect(sentry_exception_handler)
+    got_request_exception.connect(opbeat_exception_handler)
 
     # If Celery is installed, register a signal handler
     if 'djcelery' in django_settings.INSTALLED_APPS:

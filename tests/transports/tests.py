@@ -83,10 +83,10 @@ class TransportTest(TestCase):
         d = calendar.timegm(mydate.timetuple())
         msg = c.build_msg_for_logging("Message", message='foo', date=d)
         expected = {
-            'project_id':project_id,
-            'access_token':access_token,
+            'project_id': project_id,
+            'access_token': access_token,
             'message': 'foo',
-            'param_message': {'message':'foo','params':()},
+            'param_message': {'message': 'foo', 'params': ()},
             'server_name': u'test_server',
             'level': "error",
             # 'checksum': 'acbd18db4cc2f85cedef654fccc4a4d8',
