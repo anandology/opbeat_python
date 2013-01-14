@@ -121,28 +121,28 @@ class ClientTest(TestCase):
     #         },
     #     )
 
-    @mock.patch('opbeat_python.base.Client.send_remote')
-    @mock.patch('opbeat_python.base.time.time')
-    def test_send_with_auth_header(self, time, send_remote):
-        time.return_value = 1328055286.51
-        client = Client(
-            servers=['http://example.com'],
-            project_id='public',
-            access_token='secret',
-        )
-        client.send({
-            'foo': 'bar',
-        }, auth_header='foo')
-        send_remote.assert_called_once_with(
-            url='http://example.com',
-            data='x\x9c\xabVJ\xcb\xcfW\xb2RPJJ,R\xaa\x05\x00 \x98\x04T',
-            headers={
-                'Content-Type': 'application/octet-stream',
-                'Authorization': 'foo',
-                'User-Agent': 'opbeat_python/%s' % opbeat_python.VERSION
-
-            },
-        )
+#    @mock.patch('opbeat_python.base.Client.send_remote')
+#    @mock.patch('opbeat_python.base.time.time')
+#    def test_send_with_auth_header(self, time, send_remote):
+#        time.return_value = 1328055286.51
+#        client = Client(
+#            servers=['http://example.com'],
+#            project_id='public',
+#            access_token='secret',
+#        )
+#        client.send({
+#            'foo': 'bar',
+#        }, auth_header='foo')
+#        send_remote.assert_called_once_with(
+#            url='http://example.com',
+#            data='x\x9c\xabVJ\xcb\xcfW\xb2RPJJ,R\xaa\x05\x00 \x98\x04T',
+#            headers={
+#                'Content-Type': 'application/octet-stream',
+#                'Authorization': 'foo',
+#                'User-Agent': 'opbeat_python/%s' % opbeat_python.VERSION
+#
+#            },
+#        )
 
     def test_encode_decode(self):
         data = {'foo': 'bar'}
