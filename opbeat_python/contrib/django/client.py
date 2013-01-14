@@ -105,7 +105,7 @@ class DjangoClient(Client):
 
         return result
 
-    def send(self, **kwargs):
+    def send(self, message, **kwargs):
         """
         Serializes and signs ``data`` and passes the payload off to ``send_remote``
 
@@ -113,7 +113,7 @@ class DjangoClient(Client):
         each server using ``send_remote()``.
         """
         if self.servers:
-            return super(DjangoClient, self).send(**kwargs)
+            return super(DjangoClient, self).send(message, **kwargs)
         # elif 'sentry' in settings.INSTALLED_APPS:
         #     try:
         #         return self.send_integrated(kwargs)

@@ -85,7 +85,7 @@ class ClientTest(TestCase):
             project_id=public,
             access_token=access_token,
         )
-        client.send(**{
+        client.send({
             'foo': 'bar',
         })
         send_remote.assert_called_once_with(
@@ -130,9 +130,9 @@ class ClientTest(TestCase):
             project_id='public',
             access_token='secret',
         )
-        client.send(auth_header='foo', **{
+        client.send({
             'foo': 'bar',
-        })
+        }, auth_header='foo')
         send_remote.assert_called_once_with(
             url='http://example.com',
             data='x\x9c\xabVJ\xcb\xcfW\xb2RPJJ,R\xaa\x05\x00 \x98\x04T',

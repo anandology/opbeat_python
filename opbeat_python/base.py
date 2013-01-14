@@ -370,9 +370,13 @@ class Client(object):
 		if not api_path:
 			api_path = defaults.ERROR_API_PATH.format(data['project_id'])
 		
-		data['servers'] = [ server+api_path for server in self.servers]
+		servers = [ server+api_path for server in self.servers]
 
-		self.send(**data)
+		project_id = data.pop('project_id', None)
+		access_token = data.pop('access_token', None)
+		auth_header = data.pop('auth_header', None)
+
+		self.send(data, project_id=project_id, access_token=access_token, auth_header=auth_header, servers=servers)
 
 		return data['client_supplied_id']
 
@@ -415,14 +419,14 @@ class Client(object):
 		else:
 			self.state.set_success()
 
-	def send(self, project_id=None, access_token=None, auth_header=None, servers = None, **data):
+	def send(self, message, project_id=None, access_token=None, auth_header=None, servers = None):
 		"""
 		Serializes the message and passes the payload onto ``send_encoded``.
 		"""
-		message = self.encode(data)
+		encoded_message = self.encode(message)
 
 		try:
-			return self.send_encoded(message, project_id=project_id, access_token=access_token, auth_header=auth_header, servers=servers)
+			return self.send_encoded(encoded_message, project_id=project_id, access_token=access_token, auth_header=auth_header, servers=servers)
 		except TypeError:
 			# Make the assumption that public_key wasnt supported
 			warnings.warn('%s.send_encoded needs updated to support ``**kwargs``' % (type(self).__name__,),

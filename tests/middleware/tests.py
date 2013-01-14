@@ -11,8 +11,8 @@ class TempStoreClient(Client):
         self.events = []
         super(TempStoreClient, self).__init__(servers=servers, **kwargs)
 
-    def send(self, **kwargs):
-        self.events.append(kwargs)
+    def send(self, message, **kwargs):
+        self.events.append(message)
 
 
 def example_app(environ, start_response):

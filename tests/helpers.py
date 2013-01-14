@@ -15,5 +15,5 @@ class TempStoreClient(Client):
 								servers=servers, project_id=project_id,
 								access_token=access_token, **kwargs)
 
-	def send(self, **kwargs):
-		self.events.append(kwargs)
+	def send(self, message, **kwargs):
+		self.events.append(message)
